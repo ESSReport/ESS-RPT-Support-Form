@@ -1,67 +1,98 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-<title>Submit Support Ticket</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Ticket</title>
+<style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    h2 { text-align: center; }
+    form { max-width: 400px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select, textarea, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+    button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    .hidden { display: none; }
+</style>
 </head>
-
 <body>
 
 <h2>Support Ticket</h2>
 
 <form id="ticketForm">
+    <label>Department</label>
+    <select name="department" id="department" required>
+        <option value="">Select Department</option>
+        <option value="Deposit Concern">Deposit Concern</option>
+        <option value="Withdrawal Issue">Withdrawal Issue</option>
+        <option value="Commission Issue">Commission Issue</option>
+        <option value="Report Balance Concern">Report Balance Concern</option>
+    </select>
 
-<label>Department</label><br>
+    <div id="shopnameDiv" class="hidden">
+        <label>Shop Name</label>
+        <input name="shopname" id="shopname" placeholder="Shop Name">
+    </div>
 
-<select name="department" required>
-<option>Deposit Concern</option>
-<option>Withdrawal Issue</option>
-<option>Commission Issue</option>
-<option>Report Balance Concern</option>
-</select>
+    <div id="referenceDiv" class="hidden">
+        <label>Reference</label>
+        <input name="reference" id="reference" placeholder="Reference">
+    </div>
 
-<br><br>
+    <div id="concernDiv" class="hidden">
+        <label>Concern</label>
+        <textarea name="concern" id="concern" placeholder="Describe your concern" required></textarea>
+    </div>
 
-<input name="shopname" placeholder="Shop Name">
+    <input type="hidden" name="chatid" id="chatid">
 
-<br><br>
-
-<input name="reference" placeholder="Reference">
-
-<br><br>
-
-<textarea name="concern" placeholder="Describe your concern" required></textarea>
-
-<br><br>
-
-<input type="hidden" name="chatid" id="chatid">
-
-<button type="submit">Submit Ticket</button>
-
+    <button type="submit">Submit Ticket</button>
 </form>
 
 <script>
-
+// Get chatid from Telegram URL
 const urlParams = new URLSearchParams(window.location.search);
-
 document.getElementById("chatid").value = urlParams.get("chatid");
 
-document.getElementById("ticketForm").onsubmit = function(e){
+// Show fields based on department
+document.getElementById("department").addEventListener("change", function() {
+    const dep = this.value;
+    document.getElementById("shopnameDiv").classList.add("hidden");
+    document.getElementById("referenceDiv").classList.add("hidden");
+    document.getElementById("concernDiv").classList.add("hidden");
 
-e.preventDefault();
+    if (dep === "Deposit Concern" || dep === "Withdrawal Issue") {
+        document.getElementById("shopnameDiv").classList.remove("hidden");
+        document.getElementById("referenceDiv").classList.remove("hidden");
+        document.getElementById("concernDiv").classList.remove("hidden");
+        document.getElementById("concern").required = true;
+    } else if (dep === "Commission Issue") {
+        document.getElementById("shopnameDiv").classList.remove("hidden");
+        document.getElementById("concernDiv").classList.remove("hidden");
+        document.getElementById("concern").required = true;
+    } else if (dep === "Report Balance Concern") {
+        document.getElementById("concernDiv").classList.remove("hidden");
+        document.getElementById("concern").required = true;
+    }
+});
 
-var data = new FormData(this);
+// Handle form submission
+document.getElementById("ticketForm").onsubmit = function(e) {
+    e.preventDefault();
 
-fetch("https://script.google.com/macros/s/AKfycbzbDmt1NkNok0xMoovDsKg4Zl-5vG8NwUU_Px-Jv6b-6vs-VQWrHNdrBam7ixO2t4iL/exec",{
-method:"POST",
-body:data
-})
-.then(()=>alert("Ticket submitted successfully"));
+    const formData = new FormData(this);
+    const params = new URLSearchParams(formData).toString();
 
+    fetch("https://script.google.com/macros/s/AKfycbzbDmt1NkNok0xMoovDsKg4Zl-5vG8NwUU_Px-Jv6b-6vs-VQWrHNdrBam7ixO2t4iL/exec" + params)
+    .then(response => response.text())
+    .then(result => {
+        document.body.innerHTML = "<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>";
+    })
+    .catch(error => {
+        alert("Error submitting ticket: " + error);
+    });
 };
-
 </script>
 
 </body>
-
 </html>
