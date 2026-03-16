@@ -83,7 +83,7 @@ document.getElementById("ticketForm").onsubmit = function(e) {
     const formData = new FormData(this);
     const params = new URLSearchParams(formData).toString();
 
-    fetch("https://script.google.com/macros/s/AKfycbzbDmt1NkNok0xMoovDsKg4Zl-5vG8NwUU_Px-Jv6b-6vs-VQWrHNdrBam7ixO2t4iL/exec" + params)
+    fetch("https://script.google.com/macros/s/AKfycbzbDmt1NkNok0xMoovDsKg4Zl-5vG8NwUU_Px-Jv6b-6vs-VQWrHNdrBam7ixO2t4iL/exec?" + params)
     .then(response => response.text())
     .then(result => {
         document.body.innerHTML = "<h2>Ticket submitted successfully!</h2><p>You can now close this tab.</p>";
